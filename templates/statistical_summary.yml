@@ -1,0 +1,26 @@
+id: statistical_summary
+name: "数据统计分析"
+description: "对表格数据进行统计摘要、趋势分析、异常检测和排名"
+icon: "📊"
+applicable:
+  file_types: [xlsx, xls, csv]
+  keywords: [统计, 分析, 趋势, 排名, 异常]
+  min_files: 1
+  max_files: 1
+analysis:
+  methods:
+    - statistical_summary
+    - trend_analysis
+    - anomaly_detection
+    - ranking
+  hints:
+    auto_detect_columns: true
+report:
+  template: executive_dashboard
+  title_template: "{{file_name}} — 数据统计分析报告"
+  sections:
+    - summary_cards
+    - trend_chart
+    - anomaly_table
+    - ranking_chart
+    - recommendations

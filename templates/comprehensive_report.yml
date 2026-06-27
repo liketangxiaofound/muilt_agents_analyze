@@ -1,0 +1,31 @@
+id: comprehensive_report
+name: "综合报告"
+description: "完整分析：统计摘要 + 趋势 + 异常 + 排名 + 文本提取（全部分析方法）"
+icon: "📑"
+applicable:
+  file_types: [xlsx, xls, csv, docx, pdf]
+  keywords: [综合, 全面, 完整, 详细, 报告]
+  min_files: 1
+  max_files: 5
+analysis:
+  methods:
+    - statistical_summary
+    - trend_analysis
+    - anomaly_detection
+    - ranking
+    - correlation
+    - text_summary
+    - comparison
+    - classification
+  hints:
+    auto_detect_columns: true
+report:
+  template: executive_dashboard
+  title_template: "{{file_name}} — 综合分析报告"
+  sections:
+    - summary_cards
+    - trend_chart
+    - anomaly_table
+    - ranking_chart
+    - text_content
+    - recommendations

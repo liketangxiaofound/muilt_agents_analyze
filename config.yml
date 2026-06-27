@@ -1,0 +1,20 @@
+# 通用多 Agent 数据分析平台配置文件
+# 使用方式: python run.py
+
+port: 8000
+version: "1.0.0"
+
+# 本地存储根目录（上传文件、提取数据、生成报告的存放位置）
+storage_dir: "./local_storage"
+
+# 报告保留天数（超期自动清理）
+report_retention_days: 30
+
+# 上传文件限制
+max_upload_size_mb: 20
+allowed_file_types:
+  - xlsx
+  - xls
+  - csv
+  - docx
+  - pdf

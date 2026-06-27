@@ -1,0 +1,22 @@
+id: text_extraction
+name: "文档要点提取"
+description: "对 Word 或 PDF 文档提取关键要点、分类整理和关键词统计"
+icon: "📝"
+applicable:
+  file_types: [docx, pdf]
+  keywords: [文档, 摘要, 要点, 提取, 分类]
+  min_files: 1
+  max_files: 1
+analysis:
+  methods:
+    - text_summary
+    - classification
+  hints:
+    auto_detect_columns: false
+report:
+  template: minimal_report
+  title_template: "{{file_name}} — 文档要点提取报告"
+  sections:
+    - summary_cards
+    - text_content
+    - classification

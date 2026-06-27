@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -v app/agents/lead_agent.py app/agents/data_query_agent.py app/agents/data_analyst_agent.py app/agents/web_engineer_agent.py app/agents/html_report_review_agent.py app/agents/summary_html_agent.py app/agents/zip_file_agent.py app/agents/send_email_agent.py)",
+      "Bash(rm -v app/prompt/lead_prompt.py app/prompt/data_query_prompt.py app/prompt/data_analyst_prompt.py app/prompt/web_engieer_prompt.py app/prompt/html_report_review_prompt.py app/prompt/summary_html_prompt.py app/prompt/zip_file_prompt.py app/prompt/send_email_prompt.py)",
+      "Bash(rm -rfv app/db/ app/servics/)",
+      "Bash(rm -v app/config/setting_env.py app/config/setting_sql.py config_dev.yml app/tools/strands_agents_tool.py)",
+      "Bash(rmdir mutli-agents *)",
+      "Bash(python -c \"from app.config.setting import settings; print\\(f'Port: {settings.port}, Storage: {settings.storage_dir}'\\)\")",
+      "Bash(python -c ' *)",
+      "Bash(pip install *)",
+      "Bash(python -m py_compile app/config/setting.py)",
+      "Bash(python -m py_compile app/models/database.py)",
+      "Bash(python -c \"from app.models.memory_manager import memory; print\\('MEMORY.md exists:', 'yes' if memory.load_long_term\\(\\) != '' else 'no'\\)\")",
+      "Bash(python -m py_compile app/api/knowledge.py)",
+      "Bash(python -m py_compile app/tools/knowledge_tools.py)",
+      "Bash(python -m py_compile app/models/knowledge_base.py)"
+    ]
+  }
+}

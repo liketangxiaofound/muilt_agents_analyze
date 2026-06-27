@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+
+# Env
+.env
+
+# Local storage (uploads, reports, databases)
+local_storage/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+frontend/node_modules/

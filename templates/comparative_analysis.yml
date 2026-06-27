@@ -1,0 +1,26 @@
+id: comparative_analysis
+name: "对比分析"
+description: "对两个及以上表格文件进行横向对比，找出差异和共同点"
+icon: "📋"
+applicable:
+  file_types: [xlsx, xls, csv]
+  keywords: [对比, 比较, 差异, 同比, 环比]
+  min_files: 2
+  max_files: 5
+analysis:
+  methods:
+    - statistical_summary
+    - comparison
+    - trend_analysis
+    - ranking
+  hints:
+    auto_detect_columns: true
+report:
+  template: executive_dashboard
+  title_template: "多文件对比分析报告"
+  sections:
+    - summary_cards
+    - comparison_chart
+    - trend_chart
+    - difference_table
+    - recommendations

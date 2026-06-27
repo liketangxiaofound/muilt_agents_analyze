@@ -1,0 +1,27 @@
+id: performance_review
+name: "绩效评估分析"
+description: "对比目标与实际数据，识别达标/未达标项，进行排名和趋势分析"
+icon: "🎯"
+applicable:
+  file_types: [xlsx, xls, csv]
+  keywords: [绩效, 考核, 指标, 达标, 目标, 完成率]
+  min_files: 1
+  max_files: 2
+analysis:
+  methods:
+    - statistical_summary
+    - comparison
+    - ranking
+    - anomaly_detection
+    - trend_analysis
+  hints:
+    auto_detect_columns: true
+report:
+  template: executive_dashboard
+  title_template: "{{file_name}} — 绩效评估分析报告"
+  sections:
+    - summary_cards
+    - comparison_chart
+    - ranking_chart
+    - anomaly_table
+    - recommendations
