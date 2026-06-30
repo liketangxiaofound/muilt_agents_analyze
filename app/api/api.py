@@ -415,51 +415,10 @@ def _extract_insight(r):
 
 
 async def _execute_analysis_with_feedback(task_id, file_paths, file_names, original_config, feedback):
-    from app.agents.coordinator_agent import coordinator
-
-    def update_status(status, progress):
-        with LocalSession() as db:
-            t = db.query(Task).filter(Task.id == task_id).first()
-            if t:
-                t.status = status
-                t.progress = progress
-                if status in ("done", "failed"):
-                    t.completed_at = datetime.now().isoformat(timespec="seconds")
-                db.commit()
-
-    try:
-        update_status("analyzing", "基于反馈重新分析...")
-        # 解析为绝对路径
-        from app.tools.storage_tools import process_file_key
-        abs_paths = [os.path.abspath(process_file_key(p)) for p in file_paths]
-        report_path = f"reports/{task_id}/report.html"
-        missing_str = ", ".join(feedback.missing_items) if feedback.missing_items else "无"
-        query = (
-            f"用户对之前的报告不满意，反馈如下:\n"
-            f"满意度: {feedback.satisfaction}\n缺失内容: {missing_str}\n"
-            f"详细描述: {feedback.description or '无'}\n\n"
-            f"原始分析配置: {json.dumps(original_config, ensure_ascii=False)}\n\n"
-            f"报告输出路径: {report_path}\n"
-            f"请直接调用 analyzer_agent 追加缺失的分析方法，然后调用 visualizer_agent 重新生成报告。不需要重新解析文件。\n"
-            f"文件列表:\n" + "\n".join(f"- {n} (绝对路径: {p})" for n, p in zip(file_names, abs_paths))
-        )
-        response = await coordinator.invoke_async(query)
-        logging.info(f"反馈重跑响应: {len(str(response))} 字符")
-
-        # 创建 Report 记录
-        with LocalSession() as db:
-            import uuid as _uuid
-            report = Report(
-                id=_uuid.uuid4().hex[:12],
-                task_id=task_id,
-                file_path=report_path,
-                title=f"反馈修正 — {file_names[0] if file_names else '报告'}",
-                summary=str(response)[:500] if response else "",
-            )
-            db.add(report)
-            db.commit()
-
-        update_status("done", "基于反馈重新分析完成")
-    except Exception as e:
-        logging.error(f"反馈重跑失败: {e}")
-        update_status("failed", str(e))
+    """基于用户反馈重新分析 — 直接复用代码驱动的分析流程。"""
+    # 反馈信息附加到 nl_query，让分析流程知道用户的补充需求
+    missing = ", ".join(feedback.missing_items) if feedback.missing_items else ""
+    nl_query = f"用户反馈: {feedback.description or ''}。缺失内容: {missing}"
+    await _execute_analysis(task_id, file_paths, file_names,
+                            template_id=original_config.get("template_id", ""),
+                            nl_query=nl_query)
