@@ -26,7 +26,7 @@ class FeedbackRequest(BaseModel):
     description: Optional[str] = None
 
 
-@router.get("/")
+@router.get("/api")
 async def root():
     return {"message": "Multi-Agent Data Analysis Platform", "version": "1.0.0"}
 
