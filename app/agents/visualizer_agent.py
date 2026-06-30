@@ -3,7 +3,7 @@ from app.tools.viz_tools import (
     render_line_chart, render_bar_chart, render_radar_chart,
     render_table, render_summary_card, apply_report_template, self_review,
 )
-from app.tools.storage_tools import write_local_file_html, read_local_file
+from app.tools.storage_tools import write_local_file_html
 from app.models.LLM_model import ModelInstances
 from app.prompt.visualizer_prompt import visualizer_prompt
 
@@ -33,7 +33,7 @@ def visualizer_agent(query: str) -> str:
             tools=[
                 render_line_chart, render_bar_chart, render_radar_chart,
                 render_table, render_summary_card, apply_report_template,
-                write_local_file_html, read_local_file, self_review,
+                write_local_file_html, self_review,
             ],
         )
         response = agent(formatted_query)

@@ -84,12 +84,28 @@ def render_summary_card(metrics_json: str) -> str:
 
 @tool
 def apply_report_template(template_id: str, analysis_results_json: str) -> str:
-    """选择报告模板并返回使用说明。"""
+    """读取报告模板并返回模板 HTML 内容。Agent 直接将分析结果填入模板的 {{ content }} 和 {{ chart_scripts }} 区域即可，不需要再单独读取模板文件。"""
+    import os
     if template_id == "executive_dashboard":
-        template_hint = "executive_dashboard"
+        name = "executive_dashboard"
     else:
-        template_hint = "minimal_report"
-    return json.dumps({"template": template_hint, "message": f"请读取 report_templates/{template_hint}.html 模板文件，将分析结果填入模板的 content 和 chart_scripts 区域。使用 render_line_chart、render_bar_chart 等工具的输出来填充图表。"}, ensure_ascii=False)
+        name = "minimal_report"
+
+    # 模板在项目根目录的 report_templates/ 下
+    template_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "report_templates", f"{name}.html")
+    template_path = os.path.normpath(template_path)
+
+    if not os.path.exists(template_path):
+        return json.dumps({"error": f"模板文件不存在: {template_path}", "fallback": "请直接构建完整的 HTML 报告，包含 Chart.js CDN、响应式设计、摘要卡片、图表和表格。"}, ensure_ascii=False)
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        template_html = f.read()
+
+    return json.dumps({
+        "template": name,
+        "html": template_html,
+        "usage": "将分析结果填入模板的 {{ content }} 区域（HTML片段）和 {{ chart_scripts }} 区域（Chart.js初始化脚本）。使用 render_line_chart、render_bar_chart、render_table、render_summary_card 等工具生成内容填充。",
+    }, ensure_ascii=False)
 
 
 @tool

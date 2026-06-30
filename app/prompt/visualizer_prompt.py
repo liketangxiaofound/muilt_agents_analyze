@@ -11,11 +11,13 @@ visualizer_prompt = """
 HTML 组件:
 - **render_table** — 生成 HTML 表格
 - **render_summary_card** — 生成数据摘要卡片
-- **apply_report_template** — 获取报告模板建议
+- **apply_report_template** — 获取报告模板 HTML 内容（直接返回模板代码，不需要再读文件）
 
 文件操作:
 - **write_local_file_html** — 将 HTML 写入本地存储
 - **self_review** — 自检报告质量
+
+## 重要：apply_report_template 已经返回了模板的完整 HTML 代码，直接使用即可，不要再调用任何文件读取工具去读模板。
 
 ## 工作流程
 
