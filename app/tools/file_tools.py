@@ -35,9 +35,10 @@ def _resolve_path(file_path: str) -> str:
 
 @tool
 def parse_excel(file_path: str, sheet_name: str = "") -> str:
-    """解析 Excel 文件（xlsx/xls），提取所有工作表的表头和数据行。"""
+    """解析 Excel 文件（xlsx/xls），大文件只返回前 50 行预览。"""
     if openpyxl is None:
         return json.dumps({"error": "openpyxl 未安装"}, ensure_ascii=False)
+    max_preview = 50
     try:
         full_path = _resolve_path(file_path)
         wb = openpyxl.load_workbook(full_path, data_only=True)
@@ -51,8 +52,13 @@ def parse_excel(file_path: str, sheet_name: str = "") -> str:
             if not rows:
                 continue
             headers = [str(h) if h is not None else f"col_{i}" for i, h in enumerate(rows[0])]
-            data_rows = [[None if cell is None else str(cell) if isinstance(cell, str) else cell for cell in row] for row in rows[1:]]
-            sheets_data.append({"sheet_name": sname, "row_count": len(data_rows), "column_count": len(headers), "columns": headers, "rows": data_rows})
+            all_rows = [[None if cell is None else str(cell) if isinstance(cell, str) else cell for cell in row] for row in rows[1:]]
+            total = len(all_rows)
+            preview = all_rows[:max_preview]
+            sheets_data.append({"sheet_name": sname, "row_count": total, "column_count": len(headers),
+                "columns": headers, "rows": preview,
+                "truncated": total > max_preview,
+                "message": f"共 {total} 行，仅返回前 {max_preview} 行预览。" if total > max_preview else ""})
         return json.dumps({"type": "tabular", "source": os.path.basename(file_path), "sheets": sheets_data}, ensure_ascii=False, default=str)
     except Exception as e:
         return json.dumps({"error": f"Excel 解析失败: {str(e)}"}, ensure_ascii=False)
@@ -60,7 +66,8 @@ def parse_excel(file_path: str, sheet_name: str = "") -> str:
 
 @tool
 def parse_csv(file_path: str, delimiter: str = ",", has_header: bool = True) -> str:
-    """解析 CSV 文件。"""
+    """解析 CSV 文件。大文件只返回前 50 行预览，避免上下文溢出。"""
+    max_preview = 50
     try:
         full_path = _resolve_path(file_path)
         with open(full_path, "r", encoding="utf-8-sig") as f:
@@ -71,22 +78,40 @@ def parse_csv(file_path: str, delimiter: str = ",", has_header: bool = True) -> 
             return json.dumps({"error": "CSV 文件为空"}, ensure_ascii=False)
         headers = rows[0] if has_header else [f"col_{i}" for i in range(len(rows[0]))]
         data_rows = rows[1:] if has_header else rows
-        return json.dumps({"type": "tabular", "source": os.path.basename(file_path), "sheets": [{"sheet_name": "data", "row_count": len(data_rows), "column_count": len(headers), "columns": headers, "rows": data_rows}]}, ensure_ascii=False)
+        total = len(data_rows)
+        preview = data_rows[:max_preview]
+        return json.dumps({"type": "tabular", "source": os.path.basename(file_path),
+            "sheets": [{"sheet_name": "data", "row_count": total, "column_count": len(headers),
+                "columns": headers, "rows": preview,
+                "truncated": total > max_preview,
+                "message": f"共 {total} 行，仅返回前 {max_preview} 行预览。统计分析工具会使用完整数据。" if total > max_preview else ""}]},
+            ensure_ascii=False)
     except UnicodeDecodeError:
-        try:
-            with open(full_path, "r", encoding="gbk") as f:
-                content = f.read()
-            reader = csv.reader(StringIO(content), delimiter=delimiter)
-            rows = list(reader)
-            if not rows:
-                return json.dumps({"error": "CSV 文件为空"}, ensure_ascii=False)
-            headers = rows[0] if has_header else [f"col_{i}" for i in range(len(rows[0]))]
-            data_rows = rows[1:] if has_header else rows
-            return json.dumps({"type": "tabular", "source": os.path.basename(file_path), "sheets": [{"sheet_name": "data", "row_count": len(data_rows), "column_count": len(headers), "columns": headers, "rows": data_rows}]}, ensure_ascii=False)
-        except Exception as e:
-            return json.dumps({"error": f"CSV 解析失败: {str(e)}"}, ensure_ascii=False)
+        return _parse_csv_gbk(full_path, delimiter, has_header, max_preview)
     except Exception as e:
         return json.dumps({"error": f"CSV 解析失败: {str(e)}"}, ensure_ascii=False)
+
+
+def _parse_csv_gbk(full_path, delimiter, has_header, max_preview):
+    try:
+        with open(full_path, "r", encoding="gbk") as f:
+            content = f.read()
+        reader = csv.reader(StringIO(content), delimiter=delimiter)
+        rows = list(reader)
+        if not rows:
+            return json.dumps({"error": "CSV 文件为空"}, ensure_ascii=False)
+        headers = rows[0] if has_header else [f"col_{i}" for i in range(len(rows[0]))]
+        data_rows = rows[1:] if has_header else rows
+        total = len(data_rows)
+        preview = data_rows[:max_preview]
+        return json.dumps({"type": "tabular", "source": os.path.basename(full_path),
+            "sheets": [{"sheet_name": "data", "row_count": total, "column_count": len(headers),
+                "columns": headers, "rows": preview,
+                "truncated": total > max_preview,
+                "message": f"共 {total} 行，仅返回前 {max_preview} 行预览。" if total > max_preview else ""}]},
+            ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({"error": f"CSV 解析失败(GBK): {str(e)}"}, ensure_ascii=False)
 
 
 @tool
