@@ -59,31 +59,48 @@
 ### 环境要求
 
 - Python 3.9+
+- Node.js 18+（前端开发需要）
 - DeepSeek API Key（或其他 OpenAI 兼容 API）
 
-### 安装
+### 安装与启动
 
 ```bash
 # 1. 克隆项目
 git clone <repo-url>
-cd mutli-agents
+cd muilt_agents_analyze
 
-# 2. 安装依赖
+# 2. 安装 Python 依赖
 pip install -r requirements.txt
 
 # 3. 配置环境变量
 cp .env.example .env
 # 编辑 .env，填入 DEEPSEEK_API_KEY=sk-xxx
 
-# 4. （可选）配置知识库
-# 将知识文档放入 knowledge_docs/
-# 编辑 scripts/index_knowledge.py 配置映射
-python scripts/index_knowledge.py
+# 4. 初始化（生成样例数据 + 索引知识库）
+bash scripts/setup.sh
 
-# 5. 启动
+# 5. 启动后端
 python run.py
-# 服务启动在 http://localhost:8000
+# 打开浏览器访问 http://localhost:8000
 ```
+
+前端已构建在 `app/static/`，后端一并托管，无需额外操作。
+
+### 前端开发模式（可选）
+
+改前端代码时，开两个终端：
+
+```bash
+# 终端 1：后端
+python run.py
+
+# 终端 2：前端开发服务器（热更新）
+cd frontend
+npm install        # 首次需要
+npm run dev        # 访问 http://localhost:5173
+```
+
+`npm run dev` 会自动代理 `/api` 请求到后端 8000 端口，改代码即时生效。开发完后 `npm run build` 更新 `app/static/`。
 
 ### 验证
 
